@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alerta quando o cadastro de um cliente seu muda — R$1,50 por CNPJ/mês</title>
+<meta name="description" content="Monitoramento diário dos CNPJs da sua carteira nos dados públicos da Receita Federal. Entrada e saída de sócio, endereço, capital social, situação cadastral, razão social, CNAE e porte. R$1,50 por CNPJ/mês, mínimo R$75.">
+<meta name="robots" content="index,follow">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23123a5f'/><circle cx='16' cy='16' r='6' fill='none' stroke='%235fa8e0' stroke-width='3'/><circle cx='16' cy='16' r='1.8' fill='%23ffd08a'/></svg>">
+<style>
+  :root{
+    --ink:#16202b;
+    --ink-soft:#4a5866;
+    --line:#d8dfe6;
+    --bg:#ffffff;
+    --bg-soft:#f4f7fa;
+    --brand:#123a5f;
+    --brand-dark:#0c2842;
+    --accent:#e9f1f8;
+    --alert:#8f3a06;
+    --alert-bg:#fdf1e5;
+    --ok:#0f6b46;
+    --ok-bg:#e9f6ef;
+    --focus:#0b6bd3;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:17px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:780px;margin:0 auto;padding:0 20px}
+  h1,h2,h3{line-height:1.22;letter-spacing:-0.015em;margin:0 0 .5em}
+  h1{font-size:2.1rem;font-weight:800}
+  h2{font-size:1.48rem;font-weight:750;margin-top:0}
+  h3{font-size:1.05rem;font-weight:700}
+  p{margin:0 0 1em}
+  a{color:var(--brand);text-decoration:underline;text-underline-offset:2px}
+  strong{font-weight:700}
+  :focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+
+  header.top{border-bottom:1px solid var(--line)}
+  header.top .wrap{display:flex;align-items:center;gap:10px;padding:14px 20px}
+  .mark{width:26px;height:26px;border-radius:6px;background:var(--brand);flex:0 0 auto;position:relative}
+  .mark::after{content:"";position:absolute;left:8px;top:8px;width:10px;height:10px;border-radius:50%;border:2.5px solid #5fa8e0}
+  .brandname{font-weight:750;letter-spacing:-0.01em}
+
+  .hero{padding:46px 0 40px;border-bottom:1px solid var(--line)}
+  .eyebrow{display:inline-block;font-size:.8rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--brand);background:var(--accent);border-radius:999px;padding:5px 12px;margin-bottom:18px}
+  .lede{font-size:1.15rem;color:var(--ink-soft);max-width:63ch}
+  .pricetag{display:inline-block;font-weight:750;border:1.5px solid var(--brand);color:var(--brand-dark);border-radius:8px;padding:6px 12px;font-size:1.02rem;margin:4px 0 22px}
+  .btn{
+    display:inline-block;background:var(--brand);color:#fff;text-decoration:none;
+    font-family:inherit;font-weight:750;font-size:1.05rem;padding:15px 26px;border-radius:10px;
+    border:0;cursor:pointer;line-height:1.25;
+  }
+  .btn:hover{background:var(--brand-dark)}
+  .btn[disabled]{opacity:.55;cursor:progress}
+  .btn.block{display:block;width:100%;text-align:center}
+  .btn.ghost{background:#fff;color:var(--brand);border:1.5px solid var(--brand)}
+  .btn.ghost:hover{background:var(--accent)}
+  .under-btn{font-size:.95rem;color:var(--ink-soft);margin-top:12px;max-width:60ch}
+  .alt-cta{margin:14px 0 0;font-size:1rem}
+
+  section{padding:40px 0;border-bottom:1px solid var(--line)}
+  .steps{list-style:none;margin:0;padding:0;counter-reset:s}
+  .steps li{counter-increment:s;position:relative;padding-left:52px;margin-bottom:22px}
+  .steps li::before{
+    content:counter(s);position:absolute;left:0;top:-1px;width:34px;height:34px;border-radius:50%;
+    background:var(--brand);color:#fff;font-weight:750;font-size:1rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .steps li p{margin:.15em 0 0;color:var(--ink-soft)}
+
+  .fields{list-style:none;margin:0 0 20px;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .fields li{padding:12px 16px;border-bottom:1px solid var(--line)}
+  .fields li:last-child{border-bottom:0}
+  .fields li:nth-child(odd){background:var(--bg-soft)}
+  .fields b{display:block}
+  .fields span{color:var(--ink-soft);font-size:.97rem}
+
+  .note{background:var(--bg-soft);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:14px 18px;font-size:.98rem;color:var(--ink-soft)}
+  .note b{color:var(--ink)}
+  .note p:last-child{margin-bottom:0}
+
+  .plan{border:2px solid var(--brand);border-radius:14px;padding:24px}
+  .plan .amount{font-size:2.2rem;font-weight:800;letter-spacing:-0.03em;line-height:1}
+  .plan .per{font-size:1rem;font-weight:600;color:var(--ink-soft)}
+  .plan ul{list-style:none;margin:18px 0 0;padding:0}
+  .plan li{position:relative;padding-left:28px;margin-bottom:10px}
+  .plan li::before{content:"";position:absolute;left:4px;top:8px;width:8px;height:8px;border-left:2.5px solid var(--brand);border-bottom:2.5px solid var(--brand);transform:rotate(-45deg)}
+  .plan .fineprint{margin:18px 0 0;font-size:.93rem;color:var(--ink-soft)}
+  table.tiers{border-collapse:collapse;width:100%;margin:20px 0 0;font-size:.98rem}
+  table.tiers th,table.tiers td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+  table.tiers th{font-weight:700;background:var(--bg-soft)}
+  table.tiers td:last-child,table.tiers th:last-child{text-align:right;font-variant-numeric:tabular-nums}
+
+  /* ---------- verificador ---------- */
+  #verificador{background:var(--bg-soft)}
+  label{display:block;font-weight:650;margin-bottom:6px}
+  textarea{
+    width:100%;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:1rem;
+    color:var(--ink);background:#fff;border:1.5px solid #b6c2cd;border-radius:9px;padding:12px 13px;
+    min-height:120px;resize:vertical;
+  }
+  textarea::placeholder{color:#7c8a97}
+  .row-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px}
+  .privacy{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1.5px solid var(--brand);border-radius:10px;padding:14px 16px;margin:0 0 20px;font-size:.96rem}
+  .privacy .ic{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--brand-dark);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+  .privacy p{margin:0}
+  #vstatus{margin-top:16px;padding:13px 16px;border-radius:10px;font-size:.97rem;display:none}
+  #vstatus.on{display:block}
+  #vstatus.info{background:var(--accent);border:1.5px solid #9dc0dd;color:var(--brand-dark)}
+  #vstatus.err{background:#fdecec;border:1.5px solid #e08b8b;color:#7a1f1f}
+  #vstatus.ok{background:var(--ok-bg);border:1.5px solid var(--ok);color:#0b4b31}
+
+  .cards{margin-top:22px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px}
+  .card.bad{border-color:#e0b48b}
+  .card h3{margin:0 0 2px;font-size:1.08rem}
+  .card .cnpj{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92rem;color:var(--ink-soft);margin:0 0 12px}
+  .pill{display:inline-block;font-size:.82rem;font-weight:700;border-radius:999px;padding:3px 11px;margin:0 0 12px}
+  .pill.ok{background:var(--ok-bg);color:#0b4b31;border:1px solid var(--ok)}
+  .pill.warn{background:var(--alert-bg);color:var(--alert);border:1px solid #d09a63}
+  dl.kv{margin:0;display:grid;grid-template-columns:minmax(0,150px) 1fr;gap:7px 14px;font-size:.96rem}
+  dl.kv dt{font-weight:650;color:var(--ink-soft)}
+  dl.kv dd{margin:0;overflow-wrap:anywhere}
+  .socios{list-style:none;margin:4px 0 0;padding:0}
+  .socios li{padding:7px 0;border-bottom:1px dashed var(--line)}
+  .socios li:last-child{border-bottom:0}
+  .socios .q{color:var(--ink-soft);font-size:.92rem}
+  .card .err{color:var(--alert);margin:0}
+
+  .after-proof{background:#fff;border:2px solid var(--brand);border-radius:12px;padding:20px;margin-top:6px}
+  .after-proof h3{margin-top:0}
+
+  #trial .what{list-style:none;margin:0 0 22px;padding:0}
+  #trial .what li{position:relative;padding-left:28px;margin-bottom:9px}
+  #trial .what li::before{content:"";position:absolute;left:4px;top:8px;width:8px;height:8px;border-left:2.5px solid var(--brand);border-bottom:2.5px solid var(--brand);transform:rotate(-45deg)}
+  #aviso-canal{display:none;margin:18px 0 0;padding:15px 18px;border-radius:10px;background:#fff8e6;border:1.5px solid #e0be5e;color:#5a4508;font-size:.98rem}
+  #aviso-canal.on{display:block}
+  #aviso-canal p:last-child{margin-bottom:0}
+
+  .faq details{border:1px solid var(--line);border-radius:10px;margin-bottom:10px;background:#fff}
+  .faq summary{cursor:pointer;font-weight:700;padding:14px 16px;list-style:none}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";float:right;font-weight:750;color:var(--brand)}
+  .faq details[open] summary::after{content:"–"}
+  .faq .a{padding:0 16px 14px;color:var(--ink-soft)}
+  .faq .a p:last-child{margin-bottom:0}
+
+  footer{padding:30px 0 44px;color:var(--ink-soft);font-size:.92rem}
+  footer p{margin-bottom:.6em}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    h1{font-size:1.68rem}
+    h2{font-size:1.3rem}
+    .hero{padding:34px 0 32px}
+    section{padding:32px 0}
+    .plan{padding:20px}
+    dl.kv{grid-template-columns:1fr;gap:2px}
+    dl.kv dd{margin-bottom:8px}
+    .btn{width:100%;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="mark" aria-hidden="true"></span>
+    <span class="brandname">Elucidata · Monitor de Carteira</span>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Para escritórios de contabilidade</span>
+    <h1>Seu cliente mudou o quadro societário e não te avisou.</h1>
+    <p class="lede">Nós olhamos todos os CNPJs da sua carteira no cadastro público da Receita Federal e te avisamos quando algum deles muda: entrada ou saída de sócio, endereço, capital social, situação cadastral, razão social, CNAE e porte. Você para de descobrir depois.</p>
+    <p class="pricetag">R$ 1,50 por CNPJ por mês · mínimo R$ 75/mês</p>
+    <p><button type="button" class="btn" data-cta>Quero o primeiro relatório da minha carteira</button></p>
+    <p class="under-btn">Para começar, você manda 20 CNPJs da sua carteira — não precisa ser a lista toda. O primeiro relatório é sem custo e sem compromisso.</p>
+    <p class="alt-cta"><a href="#verificador">Ou confira você mesmo, agora, sem cadastro →</a></p>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <h2>O cadastro muda e ninguém te liga</h2>
+    <p>O cliente vende a parte dele, admite um sócio, muda a sede, altera o capital. Ele resolve isso com o advogado, sai da Junta com o ato registrado e não passa pela sua sala. Quando você fica sabendo, normalmente já é tarde: a obrigação foi transmitida com o quadro societário antigo, a intimação foi para um endereço que a empresa não ocupa mais, o pró-labore está no nome de quem já saiu.</p>
+    <p>E tem o caso pior, o que dá multa: a empresa está <strong>suspensa</strong>, <strong>inapta</strong> ou <strong>baixada</strong> na Receita e continua no seu rodízio de rotinas como se estivesse ativa.</p>
+    <p>Nada disso é informação secreta — está no cadastro público, aberto, que você pode consultar CNPJ por CNPJ. O problema é o volume: ninguém abre 200 consultas por dia para conferir se algo mudou. É só esse trabalho que a gente faz.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>O que dispara alerta</h2>
+    <!-- FRESCOR-PLACEHOLDER 1 de 4 — trocar {FRESCOR} pelo lag real medido entre a alteração e a publicação no dado público -->
+    <p>Comparamos o cadastro de cada CNPJ da sua lista com o que ele era na verificação anterior. Qualquer diferença nestes campos vira aviso. Sobre o intervalo entre a alteração acontecer no mundo real e ela aparecer no dado público: {FRESCOR}</p>
+    <ul class="fields">
+      <li><b>Quadro de sócios (QSA)</b><span>entrada de sócio, saída de sócio e mudança de qualificação — administrador, presidente, sócio-administrador</span></li>
+      <li><b>Situação cadastral</b><span>baixada, suspensa, inapta ou nula, com o motivo que o cadastro informa. É o alerta que evita entregar obrigação de empresa irregular</span></li>
+      <li><b>Endereço</b><span>logradouro, número, complemento, bairro, município, UF e CEP</span></li>
+      <li><b>Capital social</b><span>alteração de valor — costuma ser o rastro de uma alteração contratual que você ainda não recebeu</span></li>
+      <li><b>Razão social e nome fantasia</b><span>mudança de denominação</span></li>
+      <li><b>CNAE</b><span>atividade principal e secundárias, que mexem em enquadramento e tributação</span></li>
+      <li><b>Porte</b><span>ME, EPP ou demais, e a marcação de MEI e de Simples quando o cadastro traz</span></li>
+    </ul>
+    <p class="note"><b>O alerta é um aviso, não uma certidão.</b> Ele te diz onde olhar e em que dia algo mudou. A conferência oficial — certidão, contrato social, consulta no portal — continua sendo a fonte de fé pública. O nosso papel é você não perder a mudança de vista.</p>
+  </div>
+</section>
+
+<section id="verificador">
+  <div class="wrap">
+    <h2>Não acredite em mim: teste com os CNPJs dos seus clientes</h2>
+    <p>Cole até 10 CNPJs abaixo e veja, agora, o cadastro atual de cada um — razão social, situação cadastral, quadro de sócios, endereço, capital e CNAE. É a mesma foto que a gente compara todo dia.</p>
+
+    <div class="privacy">
+      <span class="ic" aria-hidden="true">✓</span>
+      <p><strong>Esta consulta não passa por nós.</strong> Quem chama a API pública de CNPJ é o navegador que você está usando, direto do seu aparelho. Não existe servidor nosso no caminho e nós não recebemos, não vemos e não guardamos a lista que você colar aqui.</p>
+    </div>
+
+    <label for="lista">CNPJs para conferir <span style="font-weight:400;color:var(--ink-soft)">— um por linha, com ou sem pontuação. Máximo de 10 por vez.</span></label>
+    <textarea id="lista" spellcheck="false" placeholder="33.000.167/0001-01&#10;60746948000112&#10;47.960.950/0001-21"></textarea>
+
+    <div class="row-actions">
+      <button type="button" class="btn" id="btn-consultar">Consultar cadastro atual</button>
+      <span id="vprogress" aria-live="polite" style="color:var(--ink-soft);font-size:.96rem"></span>
+    </div>
+    <div id="vstatus" role="status" aria-live="polite"></div>
+    <noscript><p class="note" style="margin-top:18px">O verificador precisa de JavaScript para consultar a API pública direto do seu navegador. Sem ele, o restante da página funciona normalmente.</p></noscript>
+
+    <div class="cards" id="vcards"></div>
+
+    <div class="after-proof" id="after-proof" hidden>
+      <h3>Isso, todo dia, para a carteira inteira</h3>
+      <!-- FRESCOR-PLACEHOLDER 2 de 4 — trocar {FRESCOR} pelo lag real medido -->
+      <p>O que você acabou de ver é a foto de hoje, tirada uma vez, à mão. O produto é a comparação dessa foto com a de ontem, para todos os CNPJs da sua carteira, sem você abrir consulta nenhuma — e um aviso só quando algo realmente mudou. Frequência com que o dado de origem se atualiza: {FRESCOR}</p>
+      <p><button type="button" class="btn" data-cta>Quero receber isso todo dia</button></p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Como começa</h2>
+    <ol class="steps">
+      <li>
+        <h3>Você manda 20 CNPJs da sua carteira</h3>
+        <p>Uma fatia, não a lista toda. Só o número do CNPJ — não precisamos de nome de contato, de balanço nem de acesso a sistema nenhum seu.</p>
+      </li>
+      <li>
+        <h3>Você recebe o primeiro relatório</h3>
+        <p>O retrato cadastral atual dos 20, lado a lado, com o que chama atenção destacado: quem está fora de ATIVA, sócio recém-entrado, capital alterado. Sem custo e sem compromisso — é aqui que você decide se o serviço tem valor.</p>
+      </li>
+      <li>
+        <h3>A lista entra em verificação diária</h3>
+        <!-- FRESCOR-PLACEHOLDER 3 de 4 — trocar {FRESCOR} pelo lag real medido -->
+        <p>A partir daí você só ouve falar de nós quando algo muda: um e-mail com o CNPJ, o campo que mudou, o valor antigo e o novo. Dia sem mudança é dia sem e-mail. Sobre a velocidade com que a alteração aparece no dado público: {FRESCOR}</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Preço</h2>
+    <div class="plan">
+      <div><span class="amount">R$ 1,50</span> <span class="per">por CNPJ, por mês</span></div>
+      <p style="margin:.7em 0 0;color:var(--ink-soft)">Mínimo de <strong>R$ 75/mês</strong>. É a conta inteira — não há taxa de setup, de implantação nem de relatório extra.</p>
+      <table class="tiers">
+        <caption style="text-align:left;color:var(--ink-soft);font-size:.93rem;padding:0 0 8px">Quanto fica na prática</caption>
+        <thead><tr><th scope="col">CNPJs monitorados</th><th scope="col">Por mês</th></tr></thead>
+        <tbody>
+          <tr><td>50</td><td>R$ 75,00</td></tr>
+          <tr><td>100</td><td>R$ 150,00</td></tr>
+          <tr><td>200</td><td>R$ 300,00</td></tr>
+          <tr><td>500</td><td>R$ 750,00</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Todos os gatilhos incluídos — não há plano que monitora só uma parte</li>
+        <li>Entra e sai CNPJ da lista quando quiser; a cobrança acompanha</li>
+        <li>Sem fidelidade e sem multa: você avisa e para no fim do ciclo pago</li>
+      </ul>
+      <p class="fineprint">Abaixo de 50 CNPJs vale o mínimo de R$ 75/mês. Acima disso é sempre R$ 1,50 por CNPJ — não temos tabela escondida por faixa.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>A sua carteira é sua</h2>
+    <p>Sabemos o que estamos pedindo. A lista de clientes é o ativo mais sensível de um escritório e você não deve entregá-la a um desconhecido sem saber o que acontece com ela. Então, sem juridiquês:</p>
+    <ul class="fields">
+      <li><b>O que monitoramos é dado público de pessoa jurídica</b><span>o cadastro de CNPJ publicado pela Receita Federal, que qualquer pessoa consulta. Não pedimos, não recebemos e não tratamos dado de pessoa física dos seus clientes — o que aparece de sócio é o que o próprio cadastro público mostra no QSA.</span></li>
+      <li><b>A lista serve para uma coisa só: gerar o seu alerta</b><span>não é usada para mais nada, por nós nem por terceiro.</span></li>
+      <li><b>Não vendemos, não cedemos e não compartilhamos a sua lista</b><span>e o compromisso mais importante: não usamos a sua carteira para oferecer nada aos seus clientes. Você não está entregando a sua lista para um concorrente prospectar.</span></li>
+      <li><b>Você pede a exclusão e ela sai</b><span>um pedido em texto simples basta — sem formulário, sem prazo de carência, sem ligação de retenção. A lista é apagada dos nossos registros.</span></li>
+      <li><b>No verificador desta página, a lista nem chega até nós</b><span>a consulta sai do seu navegador direto para a API pública. Se quiser testar sem nos dar nada, é ali em cima.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="trial">
+  <div class="wrap">
+    <h2>Pedir o primeiro relatório</h2>
+    <p>Você manda 20 CNPJs da sua carteira e recebe de volta o retrato cadastral dos 20, com o que precisa de atenção destacado. Sem custo, sem cartão e sem compromisso de continuar.</p>
+    <h3>O que vem no primeiro relatório</h3>
+    <ul class="what">
+      <li>Razão social, nome fantasia e CNPJ de cada um</li>
+      <li>Situação cadastral e a data dela — com quem não está ATIVA em destaque</li>
+      <li>Quadro de sócios atual (QSA), com qualificação e data de entrada de cada sócio</li>
+      <li>Endereço completo do cadastro</li>
+      <li>Capital social e porte</li>
+      <li>CNAE principal e secundários</li>
+      <li>Um resumo do que, na nossa leitura, merece a sua atenção primeiro</li>
+    </ul>
+    <p><button type="button" class="btn block" data-cta>Quero o primeiro relatório da minha carteira</button></p>
+    <div id="aviso-canal" role="status" aria-live="polite" tabindex="-1">
+      <p><strong>O canal de solicitação abre em instantes.</strong> Estamos terminando de configurar o formulário de recebimento e preferimos não abrir um campo que não guarda o que você digita — se você preencher algo agora, nada seria registrado, e isso seria desrespeitoso com o seu tempo.</p>
+      <p>Duas coisas que valem enquanto isso: o <a href="#verificador">verificador aqui em cima</a> já funciona e mostra hoje mesmo o cadastro dos seus clientes, sem cadastro nenhum; e a lista logo acima descreve exatamente o que chega no primeiro relatório. Se esta página estiver aberta em uma aba, volte daqui a algumas horas — o botão vai levar direto ao formulário.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Perguntas diretas</h2>
+    <div class="faq">
+      <details>
+        <summary>De onde vem o dado?</summary>
+        <div class="a"><p>Do cadastro público de CNPJ da Receita Federal, acessado por APIs abertas — as mesmas que qualquer pessoa pode consultar, sem contrato e sem privilégio de acesso. É exatamente a informação que você veria abrindo a consulta de CNPJ, um por um, no portal.</p><p>Não temos linha direta com a Junta Comercial, com a Receita nem com nenhum órgão. O que vendemos não é acesso: é o trabalho de comparar a sua carteira inteira todo dia e te avisar da diferença.</p></div>
+      </details>
+      <details>
+        <summary>Com que frequência o dado é atualizado?</summary>
+        <!-- FRESCOR-PLACEHOLDER 4 de 4 — trocar {FRESCOR} pelo lag real medido; esta é a resposta canônica de frescor -->
+        <div class="a"><p>A nossa verificação é diária. Mas a pergunta que importa de verdade é outra: quanto tempo passa entre a alteração ser registrada e ela aparecer no dado público. Esse intervalo não depende de nós, e é o seguinte: {FRESCOR}</p><p>Estamos medindo esse número com dados reais em vez de repetir o que se diz por aí. Enquanto ele não estiver medido, não vamos escrever aqui nenhuma promessa do tipo "você sabe em 24 horas" — se o intervalo for de dias ou de semanas, é isso que vai estar escrito nesta linha.</p></div>
+      </details>
+      <details>
+        <summary>Quem são vocês? Quantos escritórios já usam?</summary>
+        <div class="a"><p>Somos novos e estamos começando: não temos base de clientes para exibir, nem depoimento, nem selo. Preferimos dizer isso a inventar prova social — você é contador, reconheceria na hora.</p><p>O que oferecemos em lugar disso é verificável agora: o verificador desta página, que roda no seu navegador e mostra dados reais dos seus clientes, e o primeiro relatório sem custo. Julgue por isso.</p></div>
+      </details>
+      <details>
+        <summary>Preciso dar acesso ao meu sistema ou instalar algo?</summary>
+        <div class="a"><p>Não. Nada de integração, plugin, certificado digital, procuração eletrônica ou acesso ao seu ERP contábil. Você manda uma lista de números de CNPJ, em texto ou planilha, e recebe e-mail. É todo o acoplamento que existe.</p></div>
+      </details>
+      <details>
+        <summary>Como chega o alerta?</summary>
+        <div class="a"><p>Por e-mail, no endereço que você indicar — pode ser uma caixa do escritório em vez da sua pessoal. Um e-mail por dia, no máximo, juntando tudo que mudou. Se nada mudou na carteira, não mandamos nada: você não vai receber relatório diário de "nenhuma alteração" para treinar seu olho a ignorar a nossa mensagem.</p></div>
+      </details>
+      <details>
+        <summary>E se a minha carteira tiver mais de 500 CNPJs?</summary>
+        <div class="a"><p>Funciona igual e o preço por CNPJ é o mesmo. Se a sua carteira for grande e você quiser começar por uma parte — um sócio, uma filial, um segmento —, também dá: a lista é sua e você monta como quiser.</p></div>
+      </details>
+      <details>
+        <summary>E se um cliente meu quase nunca muda de cadastro?</summary>
+        <div class="a"><p>Aí você não recebe alerta nenhum sobre ele, e isso é o resultado correto. Honestamente: a frequência de alteração varia muito de carteira para carteira, e nós ainda não temos número medido para prometer "X mudanças por mês na sua". Não vamos estimar isso para você. O primeiro relatório existe justamente para você ver a sua carteira antes de decidir.</p></div>
+      </details>
+      <details>
+        <summary>Isso substitui a certidão ou a consulta oficial?</summary>
+        <div class="a"><p>Não, e desconfie de quem disser que substitui. O alerta te avisa que algo mudou e em qual campo, para você agir no tempo certo. Para efeito legal, valem a certidão, o ato registrado e a consulta oficial.</p></div>
+      </details>
+      <details>
+        <summary>Posso cancelar quando quiser?</summary>
+        <div class="a"><p>Sim. Sem fidelidade, sem multa, sem contrato de prazo. Você avisa, o monitoramento para no fim do ciclo já pago e a sua lista é excluída se você pedir.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><strong>Elucidata · Monitor de Carteira</strong> — monitoramento diário de alterações cadastrais e societárias para escritórios de contabilidade.</p>
+    <p>Trabalhamos com o cadastro público de CNPJ divulgado pela Receita Federal, via APIs abertas. Não somos ligados à Receita Federal, a Junta Comercial nenhuma nem a qualquer órgão público.</p>
+    <p>Esta página está em fase de validação com os primeiros escritórios: pedir o primeiro relatório é começar uma conversa, não fazer uma compra.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =========================================================================
+     CANAL DE CAPTURA DO TRIAL
+     Cole aqui a URL do formulário (Google Form) assim que ela existir.
+     É a ÚNICA linha a mudar para os botões de CTA passarem a levar ao formulário.
+     ========================================================================= */
+  var FORM_ENDPOINT = "";
+  /* ======================================================================= */
+
+  // ---------- CTA: só aponta para algum lugar quando o canal existir ----------
+  var ctas = [].slice.call(document.querySelectorAll('[data-cta]'));
+  var aviso = document.getElementById('aviso-canal');
+
+  if (FORM_ENDPOINT) {
+    ctas.forEach(function (btn) {
+      var a = document.createElement('a');
+      a.className = btn.className;
+      a.href = FORM_ENDPOINT;
+      a.rel = 'noopener';
+      a.target = '_blank';
+      a.textContent = btn.textContent;
+      btn.parentNode.replaceChild(a, btn);
+    });
+  } else {
+    ctas.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        aviso.classList.add('on');
+        aviso.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        aviso.focus();
+      });
+    });
+  }
+
+  // ---------- verificador client-side ----------
+  var MAX = 10;              // limite de CNPJs por rodada
+  var INTERVALO = 1000;      // ms entre consultas — cadência respeitosa com a API pública
+  var API = 'https://brasilapi.com.br/api/cnpj/v1/';
+
+  var ta = document.getElementById('lista');
+  var btn = document.getElementById('btn-consultar');
+  var prog = document.getElementById('vprogress');
+  var box = document.getElementById('vstatus');
+  var cards = document.getElementById('vcards');
+  var proof = document.getElementById('after-proof');
+
+  function say(kind, msg) {
+    box.className = 'on ' + kind;
+    box.textContent = msg;
+  }
+  function el(tag, cls, txt) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (txt != null) n.textContent = txt;
+    return n;
+  }
+  // Valor ausente é "—". Nunca inventamos campo que a origem não trouxe.
+  function ou(v) {
+    if (v === 0) return '0';
+    if (v == null) return '—';
+    var s = String(v).trim();
+    return s === '' ? '—' : s;
+  }
+  function fmtCnpj(c) {
+    return /^\d{14}$/.test(c)
+      ? c.slice(0,2)+'.'+c.slice(2,5)+'.'+c.slice(5,8)+'/'+c.slice(8,12)+'-'+c.slice(12)
+      : c;
+  }
+  function fmtData(s) {
+    if (!s) return '—';
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s));
+    return m ? m[3]+'/'+m[2]+'/'+m[1] : String(s);
+  }
+  function fmtDinheiro(v) {
+    if (v == null || v === '') return '—';
+    var n = Number(v);
+    if (!isFinite(n)) return '—';
+    try {
+      return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    } catch (e) {
+      return 'R$ ' + n.toFixed(2);
+    }
+  }
+  function fmtCep(v) {
+    var d = String(v == null ? '' : v).replace(/\D/g, '');
+    return d.length === 8 ? d.slice(0,5)+'-'+d.slice(5) : ou(v);
+  }
+
+  // dígitos verificadores do CNPJ — evita gastar consulta com número digitado errado
+  function cnpjValido(c) {
+    if (!/^\d{14}$/.test(c)) return false;
+    if (/^(\d)\1{13}$/.test(c)) return false;
+    function dv(base) {
+      var pesos = base.length === 12
+        ? [5,4,3,2,9,8,7,6,5,4,3,2]
+        : [6,5,4,3,2,9,8,7,6,5,4,3,2];
+      var s = 0;
+      for (var i = 0; i < base.length; i++) s += parseInt(base.charAt(i), 10) * pesos[i];
+      var r = s % 11;
+      return r < 2 ? 0 : 11 - r;
+    }
+    return dv(c.slice(0,12)) === parseInt(c.charAt(12), 10)
+        && dv(c.slice(0,13)) === parseInt(c.charAt(13), 10);
+  }
+
+  function parseLista(txt) {
+    var tokens = String(txt).split(/[\s,;]+/).filter(function (t) { return t !== ''; });
+    var validos = [], invalidos = [], vistos = {};
+    tokens.forEach(function (t) {
+      var d = t.replace(/\D/g, '');
+      if (d.length === 14 && cnpjValido(d)) {
+        if (!vistos[d]) { vistos[d] = 1; validos.push(d); }
+      } else {
+        invalidos.push(t);
+      }
+    });
+    return { validos: validos, invalidos: invalidos };
+  }
+
+  function endereco(d) {
+    var rua = [ou(d.descricao_tipo_de_logradouro), ou(d.logradouro)]
+      .filter(function (x) { return x !== '—'; }).join(' ');
+    var l1 = [rua, ou(d.numero) === '—' ? null : ou(d.numero)]
+      .filter(Boolean).join(', ');
+    var partes = [
+      l1 || null,
+      ou(d.complemento) === '—' ? null : ou(d.complemento),
+      ou(d.bairro) === '—' ? null : ou(d.bairro),
+      (ou(d.municipio) === '—' ? null : ou(d.municipio) + (ou(d.uf) === '—' ? '' : '/' + ou(d.uf))),
+      fmtCep(d.cep) === '—' ? null : 'CEP ' + fmtCep(d.cep)
+    ].filter(Boolean);
+    return partes.length ? partes.join(' · ') : '—';
+  }
+
+  function cardErro(cnpj, msg) {
+    var c = el('div', 'card bad');
+    c.appendChild(el('h3', null, fmtCnpj(cnpj)));
+    c.appendChild(el('p', 'err', msg));
+    return c;
+  }
+
+  function cardDados(d, cnpj) {
+    var c = el('div', 'card');
+    c.appendChild(el('h3', null, ou(d.razao_social)));
+
+    var sub = fmtCnpj(ou(d.cnpj) === '—' ? cnpj : String(d.cnpj));
+    var fant = ou(d.nome_fantasia);
+    if (fant !== '—') sub += ' · ' + fant;
+    c.appendChild(el('p', 'cnpj', sub));
+
+    var sit = ou(d.descricao_situacao_cadastral);
+    var ativa = sit.toUpperCase() === 'ATIVA';
+    var pill = el('span', 'pill ' + (ativa ? 'ok' : 'warn'), sit === '—' ? 'situação não informada' : sit);
+    c.appendChild(pill);
+
+    var dl = el('dl', 'kv');
+    function par(k, v) {
+      dl.appendChild(el('dt', null, k));
+      dl.appendChild(el('dd', null, v));
+    }
+    var motivo = ou(d.descricao_motivo_situacao_cadastral);
+    var sitTxt = 'desde ' + fmtData(d.data_situacao_cadastral);
+    if (motivo !== '—' && motivo.toUpperCase() !== 'SEM MOTIVO') sitTxt += ' · motivo: ' + motivo;
+    par('Situação', sitTxt);
+    par('Matriz/filial', ou(d.descricao_identificador_matriz_filial));
+    par('Abertura', fmtData(d.data_inicio_atividade));
+    par('Capital social', fmtDinheiro(d.capital_social));
+    par('Porte', ou(d.porte));
+    par('Natureza jurídica', ou(d.natureza_juridica));
+    var cnae = ou(d.cnae_fiscal) === '—' ? '—' : ou(d.cnae_fiscal) + ' — ' + ou(d.cnae_fiscal_descricao);
+    par('CNAE principal', cnae);
+    var sec = Array.isArray(d.cnaes_secundarios) ? d.cnaes_secundarios.length : 0;
+    par('CNAEs secundários', sec ? String(sec) : '—');
+    par('Endereço', endereco(d));
+    c.appendChild(dl);
+
+    var qsa = Array.isArray(d.qsa) ? d.qsa : [];
+    c.appendChild(el('h3', null, 'Quadro de sócios (QSA)'));
+    if (!qsa.length) {
+      c.appendChild(el('p', 'cnpj', 'O cadastro público não traz sócios para este CNPJ.'));
+    } else {
+      var ul = el('ul', 'socios');
+      qsa.forEach(function (s) {
+        var li = el('li');
+        li.appendChild(el('div', null, ou(s.nome_socio)));
+        var det = [];
+        if (ou(s.qualificacao_socio) !== '—') det.push(ou(s.qualificacao_socio));
+        if (fmtData(s.data_entrada_sociedade) !== '—') det.push('entrada em ' + fmtData(s.data_entrada_sociedade));
+        if (ou(s.faixa_etaria) !== '—') det.push(ou(s.faixa_etaria));
+        li.appendChild(el('div', 'q', det.length ? det.join(' · ') : '—'));
+        ul.appendChild(li);
+      });
+      c.appendChild(ul);
+    }
+    return c;
+  }
+
+  function consultar(cnpj) {
+    return fetch(API + cnpj, { headers: { 'Accept': 'application/json' } })
+      .then(function (r) {
+        if (r.status === 429) {
+          var e = new Error('limite'); e.code = 429; throw e;
+        }
+        if (r.status === 404) {
+          var n = new Error('nao_encontrado'); n.code = 404; throw n;
+        }
+        if (!r.ok) {
+          var o = new Error('http'); o.code = r.status; throw o;
+        }
+        return r.json();
+      });
+  }
+
+  function espera(ms) {
+    return new Promise(function (res) { setTimeout(res, ms); });
+  }
+
+  btn.addEventListener('click', function () {
+    var p = parseLista(ta.value);
+
+    if (!p.validos.length) {
+      cards.innerHTML = '';
+      proof.hidden = true;
+      if (p.invalidos.length) {
+        say('err', 'Nenhum CNPJ válido reconhecido. Um CNPJ tem 14 dígitos e precisa passar no dígito verificador — confira: ' + p.invalidos.slice(0, 4).join(', ') + (p.invalidos.length > 4 ? '…' : ''));
+      } else {
+        say('info', 'Cole ao menos um CNPJ para consultar.');
+      }
+      return;
+    }
+
+    var fila = p.validos.slice(0, MAX);
+    var cortados = p.validos.length - fila.length;
+    cards.innerHTML = '';
+    proof.hidden = true;
+    btn.disabled = true;
+
+    var avisos = [];
+    if (cortados > 0) avisos.push('Você colou ' + p.validos.length + ' CNPJs válidos; consultando os ' + MAX + ' primeiros (o limite desta página, para não sobrecarregar a API pública). Os outros ' + cortados + ' podem ir na próxima rodada.');
+    if (p.invalidos.length) avisos.push(p.invalidos.length + ' item(ns) foram ignorados por não serem CNPJ válido: ' + p.invalidos.slice(0, 4).join(', ') + (p.invalidos.length > 4 ? '…' : '') + '.');
+    if (avisos.length) say('info', avisos.join(' ')); else box.className = '';
+
+    var ok = 0, falhas = 0, interrompido = false;
+
+    function passo(i) {
+      if (i >= fila.length || interrompido) return Promise.resolve();
+      var cnpj = fila[i];
+      prog.textContent = 'consultando ' + (i + 1) + ' de ' + fila.length + '…';
+
+      return consultar(cnpj)
+        .then(function (d) {
+          ok++;
+          cards.appendChild(cardDados(d, cnpj));
+        })
+        .catch(function (e) {
+          if (e && e.code === 429) {
+            interrompido = true;
+            say('err', 'A API pública limitou as consultas por agora (HTTP 429). Isso é limite da fonte, não erro seu: espere um minuto e consulte novamente, de preferência com menos CNPJs por vez. Os resultados já carregados continuam na tela.');
+            return;
+          }
+          falhas++;
+          if (e && e.code === 404) {
+            cards.appendChild(cardErro(cnpj, 'Não encontrado no cadastro público. O número passa no dígito verificador, mas a base pública não devolveu esse CNPJ.'));
+          } else if (e && e.code) {
+            cards.appendChild(cardErro(cnpj, 'Não foi possível consultar agora (HTTP ' + e.code + '). Tente este CNPJ novamente em alguns minutos.'));
+          } else {
+            cards.appendChild(cardErro(cnpj, 'Não foi possível consultar agora — falha de rede entre o seu navegador e a API pública.'));
+          }
+        })
+        .then(function () {
+          if (interrompido || i + 1 >= fila.length) return;
+          return espera(INTERVALO);
+        })
+        .then(function () { return passo(i + 1); });
+    }
+
+    passo(0).then(function () {
+      btn.disabled = false;
+      prog.textContent = '';
+      if (interrompido) return;
+      if (ok > 0) {
+        proof.hidden = false;
+        var msg = ok + (ok > 1 ? ' CNPJs consultados' : ' CNPJ consultado') + ' direto do seu navegador.';
+        if (falhas) msg += ' ' + falhas + ' não retornaram dado — o motivo está no cartão de cada um.';
+        msg += ' Nada disso passou por nós.';
+        say('ok', msg);
+      } else {
+        say('err', 'Nenhuma consulta retornou dado. Confira a sua conexão e tente de novo em alguns minutos.');
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
