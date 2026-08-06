@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Alerta quando o cadastro de um cliente seu muda — R$1,50 por CNPJ/mês</title>
-<meta name="description" content="Monitoramento diário dos CNPJs da sua carteira nos dados públicos da Receita Federal. Entrada e saída de sócio, endereço, capital social, situação cadastral, razão social, CNAE e porte. R$1,50 por CNPJ/mês, mínimo R$75.">
+<title>Alerta quando um cliente seu fica inapto ou muda de cadastro na Receita — R$1,50 por CNPJ/mês</title>
+<meta name="description" content="Monitoramos os CNPJs da sua carteira no cadastro público da Receita Federal e avisamos o que mudou a cada lote oficial publicado. Situação cadastral (suspensa, inapta, baixada), endereço, CNAE, capital social, razão social, porte e quadro de sócios. R$1,50 por CNPJ/mês, mínimo R$75.">
 <meta name="robots" content="index,follow">
 <meta name="color-scheme" content="light">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23123a5f'/><circle cx='16' cy='16' r='6' fill='none' stroke='%235fa8e0' stroke-width='3'/><circle cx='16' cy='16' r='1.8' fill='%23ffd08a'/></svg>">
@@ -143,9 +143,25 @@
   #trial .what{list-style:none;margin:0 0 22px;padding:0}
   #trial .what li{position:relative;padding-left:28px;margin-bottom:9px}
   #trial .what li::before{content:"";position:absolute;left:4px;top:8px;width:8px;height:8px;border-left:2.5px solid var(--brand);border-bottom:2.5px solid var(--brand);transform:rotate(-45deg)}
-  #aviso-canal{display:none;margin:18px 0 0;padding:15px 18px;border-radius:10px;background:#fff8e6;border:1.5px solid #e0be5e;color:#5a4508;font-size:.98rem}
-  #aviso-canal.on{display:block}
-  #aviso-canal p:last-child{margin-bottom:0}
+
+  /* ---------- formulário de pedido (instrumento da métrica) ---------- */
+  #pedido{margin-top:26px}
+  .opt{font-weight:400;color:var(--ink-soft)}
+  .hint{margin:0 0 8px;font-size:.94rem;color:var(--ink-soft)}
+  input[type=email]{
+    width:100%;font-family:inherit;font-size:1rem;color:var(--ink);background:#fff;
+    border:1.5px solid #b6c2cd;border-radius:9px;padding:12px 13px;
+  }
+  input[type=email]::placeholder{color:#7c8a97}
+  .live{margin-top:10px;padding:11px 14px;border-radius:9px;font-size:.97rem;font-weight:650;
+    background:var(--accent);border:1.5px solid #9dc0dd;color:var(--brand-dark)}
+  .live.enough{background:var(--ok-bg);border-color:var(--ok);color:#0b4b31}
+  #c-out{margin-top:16px}
+  #c-out .msg{padding:14px 17px;border-radius:10px;font-size:.98rem}
+  #c-out .msg.ok{background:var(--ok-bg);border:1.5px solid var(--ok);color:#0b4b31}
+  #c-out .msg.err{background:#fdecec;border:1.5px solid #e08b8b;color:#7a1f1f}
+  #c-out .msg h3{margin:0 0 4px}
+  #c-out .msg p:last-child{margin-bottom:0}
 
   .faq details{border:1px solid var(--line);border-radius:10px;margin-bottom:10px;background:#fff}
   .faq summary{cursor:pointer;font-weight:700;padding:14px 16px;list-style:none}
@@ -183,11 +199,11 @@
 <div class="hero">
   <div class="wrap">
     <span class="eyebrow">Para escritórios de contabilidade</span>
-    <h1>Seu cliente mudou o quadro societário e não te avisou.</h1>
-    <p class="lede">Nós olhamos todos os CNPJs da sua carteira no cadastro público da Receita Federal e te avisamos quando algum deles muda: entrada ou saída de sócio, endereço, capital social, situação cadastral, razão social, CNAE e porte. Você para de descobrir depois.</p>
+    <h1>Um cliente seu ficou inapto na Receita — e você vai descobrir na próxima obrigação.</h1>
+    <p class="lede">Nós olhamos todos os CNPJs da sua carteira no cadastro público da Receita Federal e te avisamos quando algum deles muda: <strong>situação cadastral</strong> (suspensa, inapta, baixada), endereço, CNAE, capital social, razão social, porte e quadro de sócios. Você fica sabendo na virada do lote oficial da Receita — não meses depois, por acidente.</p>
     <p class="pricetag">R$ 1,50 por CNPJ por mês · mínimo R$ 75/mês</p>
     <p><button type="button" class="btn" data-cta>Quero o primeiro relatório da minha carteira</button></p>
-    <p class="under-btn">Para começar, você manda 20 CNPJs da sua carteira — não precisa ser a lista toda. O primeiro relatório é sem custo e sem compromisso.</p>
+    <p class="under-btn">Para começar, você cola pelo menos 10 CNPJs de clientes seus — não precisa ser a lista toda. O primeiro relatório é sem custo e sem compromisso.</p>
     <p class="alt-cta"><a href="#verificador">Ou confira você mesmo, agora, sem cadastro →</a></p>
   </div>
 </div>
@@ -195,8 +211,8 @@
 <section>
   <div class="wrap">
     <h2>O cadastro muda e ninguém te liga</h2>
-    <p>O cliente vende a parte dele, admite um sócio, muda a sede, altera o capital. Ele resolve isso com o advogado, sai da Junta com o ato registrado e não passa pela sua sala. Quando você fica sabendo, normalmente já é tarde: a obrigação foi transmitida com o quadro societário antigo, a intimação foi para um endereço que a empresa não ocupa mais, o pró-labore está no nome de quem já saiu.</p>
-    <p>E tem o caso pior, o que dá multa: a empresa está <strong>suspensa</strong>, <strong>inapta</strong> ou <strong>baixada</strong> na Receita e continua no seu rodízio de rotinas como se estivesse ativa.</p>
+    <p>O caso que dá multa e retrabalho é sempre o mesmo: a empresa está <strong>suspensa</strong>, <strong>inapta</strong> ou <strong>baixada</strong> na Receita e continua no seu rodízio de rotinas como se estivesse ativa. Ninguém te avisa. Você descobre na hora de transmitir, com o prazo em cima.</p>
+    <p>Depois vem o resto: o cliente muda a sede e a intimação vai para um endereço que a empresa não ocupa mais; troca o CNAE e o enquadramento não acompanha; altera o capital; muda a denominação. E, quando a empresa tem mais de um sócio, o quadro societário muda no advogado, sai da Junta com o ato registrado e não passa pela sua sala — a obrigação vai embora com o QSA antigo e o pró-labore no nome de quem já saiu.</p>
     <p>Nada disso é informação secreta — está no cadastro público, aberto, que você pode consultar CNPJ por CNPJ. O problema é o volume: ninguém abre 200 consultas por dia para conferir se algo mudou. É só esse trabalho que a gente faz.</p>
   </div>
 </section>
@@ -204,25 +220,24 @@
 <section>
   <div class="wrap">
     <h2>O que dispara alerta</h2>
-    <!-- FRESCOR-PLACEHOLDER 1 de 4 — trocar {FRESCOR} pelo lag real medido entre a alteração e a publicação no dado público -->
-    <p>Comparamos o cadastro de cada CNPJ da sua lista com o que ele era na verificação anterior. Qualquer diferença nestes campos vira aviso. Sobre o intervalo entre a alteração acontecer no mundo real e ela aparecer no dado público: {FRESCOR}</p>
+    <p>Comparamos o cadastro de cada CNPJ da sua lista com o que ele era na verificação anterior. Qualquer diferença nestes campos vira aviso. Sobre o intervalo entre a alteração acontecer no mundo real e ela aparecer no dado público: <strong>a Receita Federal publica o cadastro em um lote por mês, por volta do dia 12 a 14</strong>, e o atraso medido por empresa vai de <strong>2 a 32 dias, com média em torno de 17</strong>. Não existe fonte pública gratuita mais fresca do que essa — e nós não vamos fingir que existe.</p>
     <ul class="fields">
-      <li><b>Quadro de sócios (QSA)</b><span>entrada de sócio, saída de sócio e mudança de qualificação — administrador, presidente, sócio-administrador</span></li>
-      <li><b>Situação cadastral</b><span>baixada, suspensa, inapta ou nula, com o motivo que o cadastro informa. É o alerta que evita entregar obrigação de empresa irregular</span></li>
-      <li><b>Endereço</b><span>logradouro, número, complemento, bairro, município, UF e CEP</span></li>
+      <li><b>Situação cadastral</b><span>baixada, suspensa, inapta ou nula, com o motivo que o cadastro informa. É o gatilho mais importante e o único que vale para <em>todo</em> CNPJ da sua carteira — é o alerta que evita entregar obrigação de empresa irregular</span></li>
+      <li><b>Endereço</b><span>logradouro, número, complemento, bairro, município, UF e CEP — onde a intimação vai cair</span></li>
+      <li><b>CNAE</b><span>atividade principal e secundárias, que mexem em enquadramento e tributação</span></li>
       <li><b>Capital social</b><span>alteração de valor — costuma ser o rastro de uma alteração contratual que você ainda não recebeu</span></li>
       <li><b>Razão social e nome fantasia</b><span>mudança de denominação</span></li>
-      <li><b>CNAE</b><span>atividade principal e secundárias, que mexem em enquadramento e tributação</span></li>
       <li><b>Porte</b><span>ME, EPP ou demais, e a marcação de MEI e de Simples quando o cadastro traz</span></li>
+      <li><b>Quadro de sócios (QSA)</b><span>entrada de sócio, saída de sócio e mudança de qualificação — administrador, presidente, sócio-administrador. Vale para as empresas que têm sócio: MEI e empresário individual não têm quadro societário, e numa carteira cheia deles esse gatilho quase nunca dispara. Por isso ele é um dos gatilhos, e não a página inteira</span></li>
     </ul>
-    <p class="note"><b>O alerta é um aviso, não uma certidão.</b> Ele te diz onde olhar e em que dia algo mudou. A conferência oficial — certidão, contrato social, consulta no portal — continua sendo a fonte de fé pública. O nosso papel é você não perder a mudança de vista.</p>
+    <p class="note"><b>O alerta é um aviso, não uma certidão.</b> Ele te diz onde olhar e em que lote algo mudou. A conferência oficial — certidão, contrato social, consulta no portal — continua sendo a fonte de fé pública. O nosso papel é você não perder a mudança de vista.</p>
   </div>
 </section>
 
 <section id="verificador">
   <div class="wrap">
     <h2>Não acredite em mim: teste com os CNPJs dos seus clientes</h2>
-    <p>Cole até 10 CNPJs abaixo e veja, agora, o cadastro atual de cada um — razão social, situação cadastral, quadro de sócios, endereço, capital e CNAE. É a mesma foto que a gente compara todo dia.</p>
+    <p>Cole até 10 CNPJs abaixo e veja, agora, o cadastro de cada um como ele está no dado público — razão social, situação cadastral, quadro de sócios, endereço, capital e CNAE. É exatamente a mesma foto que a gente compara de um lote para o outro.</p>
 
     <div class="privacy">
       <span class="ic" aria-hidden="true">✓</span>
@@ -242,10 +257,9 @@
     <div class="cards" id="vcards"></div>
 
     <div class="after-proof" id="after-proof" hidden>
-      <h3>Isso, todo dia, para a carteira inteira</h3>
-      <!-- FRESCOR-PLACEHOLDER 2 de 4 — trocar {FRESCOR} pelo lag real medido -->
-      <p>O que você acabou de ver é a foto de hoje, tirada uma vez, à mão. O produto é a comparação dessa foto com a de ontem, para todos os CNPJs da sua carteira, sem você abrir consulta nenhuma — e um aviso só quando algo realmente mudou. Frequência com que o dado de origem se atualiza: {FRESCOR}</p>
-      <p><button type="button" class="btn" data-cta>Quero receber isso todo dia</button></p>
+      <h3>Isso, a cada lote, para a carteira inteira</h3>
+      <p>O que você acabou de ver é a foto do lote público mais recente, tirada uma vez, à mão. O produto é a comparação dessa foto com a do lote anterior, para todos os CNPJs da sua carteira, sem você abrir consulta nenhuma — e um aviso só quando algo realmente mudou. O dado de origem se atualiza uma vez por mês, quando a Receita publica o lote (por volta do dia 12 a 14).</p>
+      <p><button type="button" class="btn" data-cta>Quero receber isso a cada lote</button></p>
     </div>
   </div>
 </section>
@@ -255,17 +269,16 @@
     <h2>Como começa</h2>
     <ol class="steps">
       <li>
-        <h3>Você manda 20 CNPJs da sua carteira</h3>
+        <h3>Você cola pelo menos 10 CNPJs da sua carteira</h3>
         <p>Uma fatia, não a lista toda. Só o número do CNPJ — não precisamos de nome de contato, de balanço nem de acesso a sistema nenhum seu.</p>
       </li>
       <li>
         <h3>Você recebe o primeiro relatório</h3>
-        <p>O retrato cadastral atual dos 20, lado a lado, com o que chama atenção destacado: quem está fora de ATIVA, sócio recém-entrado, capital alterado. Sem custo e sem compromisso — é aqui que você decide se o serviço tem valor.</p>
+        <p>O retrato cadastral dos CNPJs que você mandou, lado a lado, com o que chama atenção destacado: quem está fora de ATIVA, sócio recém-entrado, capital alterado. Sem custo e sem compromisso — é aqui que você decide se o serviço tem valor.</p>
       </li>
       <li>
-        <h3>A lista entra em verificação diária</h3>
-        <!-- FRESCOR-PLACEHOLDER 3 de 4 — trocar {FRESCOR} pelo lag real medido -->
-        <p>A partir daí você só ouve falar de nós quando algo muda: um e-mail com o CNPJ, o campo que mudou, o valor antigo e o novo. Dia sem mudança é dia sem e-mail. Sobre a velocidade com que a alteração aparece no dado público: {FRESCOR}</p>
+        <h3>A lista entra em verificação a cada lote da Receita</h3>
+        <p>A partir daí você só ouve falar de nós quando algo muda: um e-mail com o CNPJ, o campo que mudou, o valor antigo e o novo. Lote sem mudança na sua carteira é lote sem e-mail. O lote sai uma vez por mês, por volta do dia 12 a 14 — é nessa virada que você fica sabendo, e não meses depois, por acidente.</p>
       </li>
     </ol>
   </div>
@@ -305,8 +318,9 @@
       <li><b>O que monitoramos é dado público de pessoa jurídica</b><span>o cadastro de CNPJ publicado pela Receita Federal, que qualquer pessoa consulta. Não pedimos, não recebemos e não tratamos dado de pessoa física dos seus clientes — o que aparece de sócio é o que o próprio cadastro público mostra no QSA.</span></li>
       <li><b>A lista serve para uma coisa só: gerar o seu alerta</b><span>não é usada para mais nada, por nós nem por terceiro.</span></li>
       <li><b>Não vendemos, não cedemos e não compartilhamos a sua lista</b><span>e o compromisso mais importante: não usamos a sua carteira para oferecer nada aos seus clientes. Você não está entregando a sua lista para um concorrente prospectar.</span></li>
-      <li><b>Você pede a exclusão e ela sai</b><span>um pedido em texto simples basta — sem formulário, sem prazo de carência, sem ligação de retenção. A lista é apagada dos nossos registros.</span></li>
+      <li><b>Você pede a exclusão e ela sai</b><span>um pedido em texto simples basta — sem formulário, sem prazo de carência, sem ligação de retenção. Escreva para <a href="mailto:g001-15@elucidata.vc">g001-15@elucidata.vc</a> e a lista é apagada dos nossos registros.</span></li>
       <li><b>No verificador desta página, a lista nem chega até nós</b><span>a consulta sai do seu navegador direto para a API pública. Se quiser testar sem nos dar nada, é ali em cima.</span></li>
+      <li><b>E somos honestos sobre o canal do pedido</b><span>o formulário lá embaixo envia a sua lista por um canal de mensagens público e simples, montado para uma coisa só: contar quantos escritórios estão pedindo o relatório. Por isso o e-mail é opcional — sem ele, a lista chega sem dono, e ninguém consegue ligar aqueles CNPJs a você. Está tudo escrito ao lado do botão.</span></li>
     </ul>
   </div>
 </section>
@@ -314,22 +328,42 @@
 <section id="trial">
   <div class="wrap">
     <h2>Pedir o primeiro relatório</h2>
-    <p>Você manda 20 CNPJs da sua carteira e recebe de volta o retrato cadastral dos 20, com o que precisa de atenção destacado. Sem custo, sem cartão e sem compromisso de continuar.</p>
+    <p>Cole pelo menos <strong>10 CNPJs de clientes seus</strong> e recebe de volta o retrato cadastral de todos eles, com o que precisa de atenção destacado. Sem custo, sem cartão e sem compromisso de continuar.</p>
     <h3>O que vem no primeiro relatório</h3>
     <ul class="what">
+      <li><strong>Situação cadastral e a data dela — com quem não está ATIVA em destaque</strong></li>
       <li>Razão social, nome fantasia e CNPJ de cada um</li>
-      <li>Situação cadastral e a data dela — com quem não está ATIVA em destaque</li>
-      <li>Quadro de sócios atual (QSA), com qualificação e data de entrada de cada sócio</li>
       <li>Endereço completo do cadastro</li>
-      <li>Capital social e porte</li>
       <li>CNAE principal e secundários</li>
+      <li>Capital social e porte</li>
+      <li>Quadro de sócios atual (QSA), com qualificação e data de entrada de cada sócio — para os CNPJs que têm sócio</li>
       <li>Um resumo do que, na nossa leitura, merece a sua atenção primeiro</li>
     </ul>
-    <p><button type="button" class="btn block" data-cta>Quero o primeiro relatório da minha carteira</button></p>
-    <div id="aviso-canal" role="status" aria-live="polite" tabindex="-1">
-      <p><strong>O canal de solicitação abre em instantes.</strong> Estamos terminando de configurar o formulário de recebimento e preferimos não abrir um campo que não guarda o que você digita — se você preencher algo agora, nada seria registrado, e isso seria desrespeitoso com o seu tempo.</p>
-      <p>Duas coisas que valem enquanto isso: o <a href="#verificador">verificador aqui em cima</a> já funciona e mostra hoje mesmo o cadastro dos seus clientes, sem cadastro nenhum; e a lista logo acima descreve exatamente o que chega no primeiro relatório. Se esta página estiver aberta em uma aba, volte daqui a algumas horas — o botão vai levar direto ao formulário.</p>
+
+    <form id="pedido" novalidate>
+      <label for="carteira">Cole aqui os CNPJs da sua carteira <span class="opt">— um por linha, com ou sem pontuação</span></label>
+      <p class="hint">Podem vir colados de uma planilha. O que não for CNPJ válido é descartado aqui mesmo, no seu navegador, antes de qualquer envio.</p>
+      <textarea id="carteira" spellcheck="false" autocomplete="off" placeholder="33.000.167/0001-01&#10;60746948000112&#10;47.960.950/0001-21"></textarea>
+      <div class="live" id="c-live" hidden aria-live="polite"></div>
+
+      <label for="c-email" style="margin-top:18px">E-mail para receber o relatório <span class="opt">(opcional)</span></label>
+      <p class="hint">Opcional de verdade: sem e-mail o pedido é registrado do mesmo jeito e a lista chega anônima — só não temos como te mandar o relatório de volta.</p>
+      <input type="email" id="c-email" inputmode="email" autocomplete="email" placeholder="voce@seuescritorio.com.br">
+
+      <button type="submit" class="btn block" id="c-btn" style="margin-top:18px">Enviar a lista e pedir o relatório</button>
+    </form>
+
+    <div class="note" style="margin-top:18px">
+      <p><b>O que sai do seu navegador quando você clica.</b> Só três coisas: a lista de CNPJs válidos, o e-mail <em>se</em> você tiver preenchido, e a origem do link que te trouxe aqui. Nenhum nome, telefone ou texto livre — o campo de cima só deixa passar número de CNPJ.</p>
+      <p><b>LGPD, sem enrolação.</b> CNPJ é dado público de pessoa jurídica, publicado pela própria Receita Federal: não é dado pessoal e não estamos pedindo dado pessoal de ninguém. Se você preencher o e-mail, esse endereço é dado seu, usado para uma finalidade só — te mandar o relatório — e apagado a pedido, em <a href="mailto:g001-15@elucidata.vc">g001-15@elucidata.vc</a>.</p>
+      <p><b>E a parte que quase ninguém conta.</b> Este envio passa por um canal de mensagens público e simples que usamos para contar quantos escritórios estão pedindo o relatório. É por isso que o e-mail é opcional: sem ele, a lista fica sem dono e ninguém consegue ligar aqueles CNPJs a você ou ao seu escritório.</p>
     </div>
+
+    <div id="c-out" role="status" aria-live="polite"></div>
+
+    <noscript>
+      <p class="note" style="margin-top:18px">Este formulário precisa de JavaScript para enviar. Sem ele, mande a lista de CNPJs por e-mail para <a href="mailto:g001-15@elucidata.vc">g001-15@elucidata.vc</a> — o pedido vale igual.</p>
+    </noscript>
   </div>
 </section>
 
@@ -339,12 +373,11 @@
     <div class="faq">
       <details>
         <summary>De onde vem o dado?</summary>
-        <div class="a"><p>Do cadastro público de CNPJ da Receita Federal, acessado por APIs abertas — as mesmas que qualquer pessoa pode consultar, sem contrato e sem privilégio de acesso. É exatamente a informação que você veria abrindo a consulta de CNPJ, um por um, no portal.</p><p>Não temos linha direta com a Junta Comercial, com a Receita nem com nenhum órgão. O que vendemos não é acesso: é o trabalho de comparar a sua carteira inteira todo dia e te avisar da diferença.</p></div>
+        <div class="a"><p>Do cadastro público de CNPJ da Receita Federal, acessado por APIs abertas — as mesmas que qualquer pessoa pode consultar, sem contrato e sem privilégio de acesso. É exatamente a informação que você veria abrindo a consulta de CNPJ, um por um, no portal.</p><p>Não temos linha direta com a Junta Comercial, com a Receita nem com nenhum órgão. O que vendemos não é acesso: é o trabalho de comparar a sua carteira inteira a cada lote publicado e te avisar da diferença.</p></div>
       </details>
       <details>
-        <summary>Com que frequência o dado é atualizado?</summary>
-        <!-- FRESCOR-PLACEHOLDER 4 de 4 — trocar {FRESCOR} pelo lag real medido; esta é a resposta canônica de frescor -->
-        <div class="a"><p>A nossa verificação é diária. Mas a pergunta que importa de verdade é outra: quanto tempo passa entre a alteração ser registrada e ela aparecer no dado público. Esse intervalo não depende de nós, e é o seguinte: {FRESCOR}</p><p>Estamos medindo esse número com dados reais em vez de repetir o que se diz por aí. Enquanto ele não estiver medido, não vamos escrever aqui nenhuma promessa do tipo "você sabe em 24 horas" — se o intervalo for de dias ou de semanas, é isso que vai estar escrito nesta linha.</p></div>
+        <summary>Com que frequência o dado é atualizado? Isso é tempo real?</summary>
+        <div class="a"><p>Não é tempo real, e quem te disser que é está vendendo o mesmo dado com outro nome. A Receita Federal publica o cadastro de CNPJ <strong>em um lote por mês, por volta do dia 12 a 14</strong>. Medimos o atraso empresa por empresa dentro desse lote: da alteração ser registrada até ela aparecer no dado público passam de <strong>2 a 32 dias, com média em torno de 17</strong>.</p><p>Não existe fonte pública gratuita mais fresca. Os serviços que consultam CNPJ na internet — inclusive o verificador desta página — servem todos esse mesmo lote mensal; a Junta Comercial publica só número agregado, não a alteração empresa por empresa. Por isso não escrevemos aqui "você sabe em 24 horas": seria mentira.</p><p>O que a gente entrega é o outro lado da conta. Você fica sabendo <strong>na virada do lote oficial</strong> — não meses depois, por acidente, quando a obrigação já foi transmitida errada.</p></div>
       </details>
       <details>
         <summary>Quem são vocês? Quantos escritórios já usam?</summary>
@@ -356,7 +389,7 @@
       </details>
       <details>
         <summary>Como chega o alerta?</summary>
-        <div class="a"><p>Por e-mail, no endereço que você indicar — pode ser uma caixa do escritório em vez da sua pessoal. Um e-mail por dia, no máximo, juntando tudo que mudou. Se nada mudou na carteira, não mandamos nada: você não vai receber relatório diário de "nenhuma alteração" para treinar seu olho a ignorar a nossa mensagem.</p></div>
+        <div class="a"><p>Por e-mail, no endereço que você indicar — pode ser uma caixa do escritório em vez da sua pessoal. Um e-mail por lote, juntando tudo que mudou na carteira. Se nada mudou, não mandamos nada: você não vai receber um "nenhuma alteração" recorrente para treinar seu olho a ignorar a nossa mensagem.</p></div>
       </details>
       <details>
         <summary>E se a minha carteira tiver mais de 500 CNPJs?</summary>
@@ -364,7 +397,7 @@
       </details>
       <details>
         <summary>E se um cliente meu quase nunca muda de cadastro?</summary>
-        <div class="a"><p>Aí você não recebe alerta nenhum sobre ele, e isso é o resultado correto. Honestamente: a frequência de alteração varia muito de carteira para carteira, e nós ainda não temos número medido para prometer "X mudanças por mês na sua". Não vamos estimar isso para você. O primeiro relatório existe justamente para você ver a sua carteira antes de decidir.</p></div>
+        <div class="a"><p>Aí você não recebe alerta nenhum sobre ele, e isso é o resultado correto. Honestamente: a frequência de alteração varia muito de carteira para carteira, e nós não temos número medido para prometer "X mudanças por mês na sua". Não vamos estimar isso para você.</p><p>Um aviso que interessa a quem tem carteira de MEI e empresário individual: essas empresas não têm quadro societário, então o gatilho de QSA praticamente não dispara para elas. O que ainda dispara — e é o que costuma doer — é situação cadastral, endereço, CNAE e porte. O primeiro relatório existe justamente para você ver a <em>sua</em> carteira, com o mix que ela realmente tem, antes de decidir.</p></div>
       </details>
       <details>
         <summary>Isso substitui a certidão ou a consulta oficial?</summary>
@@ -380,9 +413,9 @@
 
 <footer>
   <div class="wrap">
-    <p><strong>Elucidata · Monitor de Carteira</strong> — monitoramento diário de alterações cadastrais e societárias para escritórios de contabilidade.</p>
+    <p><strong>Elucidata · Monitor de Carteira</strong> — monitoramento de alterações cadastrais e societárias para escritórios de contabilidade, a cada lote público da Receita Federal.</p>
     <p>Trabalhamos com o cadastro público de CNPJ divulgado pela Receita Federal, via APIs abertas. Não somos ligados à Receita Federal, a Junta Comercial nenhuma nem a qualquer órgão público.</p>
-    <p>Esta página está em fase de validação com os primeiros escritórios: pedir o primeiro relatório é começar uma conversa, não fazer uma compra.</p>
+    <p>Esta página está em fase de validação com os primeiros escritórios: pedir o primeiro relatório é começar uma conversa, não fazer uma compra. Fala com a gente em <a href="mailto:g001-15@elucidata.vc">g001-15@elucidata.vc</a>.</p>
   </div>
 </footer>
 
@@ -391,36 +424,33 @@
   "use strict";
 
   /* =========================================================================
-     CANAL DE CAPTURA DO TRIAL
-     Cole aqui a URL do formulário (Google Form) assim que ela existir.
-     É a ÚNICA linha a mudar para os botões de CTA passarem a levar ao formulário.
+     CANAL DE CAPTURA DO TRIAL — instrumento da métrica do Gate 1.
+     Substitui o placeholder de formulário que nunca existiu e media zero:
+     a submissão vai para um tópico público do ntfy.sh — custo R$0, sem conta,
+     sem termos a aceitar.
+
+     Sai do navegador APENAS: a lista de CNPJs válidos, o e-mail SE preenchido
+     (opcional e assim declarado na página) e a origem do link. Não há campo de
+     nome nem de telefone, e a lista é reconstruída só com números que passam no
+     dígito verificador — texto livre não vaza por construção.
+
+     ⚠ O ntfy retém mensagem por ~12h. A evidência do gate só sobrevive porque
+     `ops/coletar_intencao.py` colhe o tópico a cada heartbeat e faz append
+     idempotente em `ops/intencoes.jsonl`. Não remova esse hábito.
      ========================================================================= */
-  var FORM_ENDPOINT = "";
+  var NTFY = 'https://ntfy.sh/elucidata-g001-15-carteira';
+  var MIN_GATE = 10;   // CNPJs necessários para o pedido virar trial de verdade
   /* ======================================================================= */
 
-  // ---------- CTA: só aponta para algum lugar quando o canal existir ----------
-  var ctas = [].slice.call(document.querySelectorAll('[data-cta]'));
-  var aviso = document.getElementById('aviso-canal');
-
-  if (FORM_ENDPOINT) {
-    ctas.forEach(function (btn) {
-      var a = document.createElement('a');
-      a.className = btn.className;
-      a.href = FORM_ENDPOINT;
-      a.rel = 'noopener';
-      a.target = '_blank';
-      a.textContent = btn.textContent;
-      btn.parentNode.replaceChild(a, btn);
+  // ---------- CTA: leva ao formulário de pedido, que agora existe ----------
+  [].slice.call(document.querySelectorAll('[data-cta]')).forEach(function (b) {
+    b.addEventListener('click', function () {
+      var alvo = document.getElementById('trial');
+      var campo = document.getElementById('carteira');
+      if (alvo) alvo.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (campo) setTimeout(function () { try { campo.focus({ preventScroll: true }); } catch (e) { campo.focus(); } }, 450);
     });
-  } else {
-    ctas.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        aviso.classList.add('on');
-        aviso.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        aviso.focus();
-      });
-    });
-  }
+  });
 
   // ---------- verificador client-side ----------
   var MAX = 10;              // limite de CNPJs por rodada
@@ -679,6 +709,122 @@
       }
     });
   });
+
+  /* =========================================================================
+     WIDGET DE PEDIDO DO PRIMEIRO RELATÓRIO
+     Numerador do Gate 1: um pedido conta como trial quando traz >= MIN_GATE
+     CNPJs válidos. Contagem client-side com dígito verificador (mesma função
+     cnpjValido usada pelo verificador acima), mostrada ao vivo.
+     ========================================================================= */
+  (function () {
+    var form  = document.getElementById('pedido');
+    var campo = document.getElementById('carteira');
+    var mail  = document.getElementById('c-email');
+    var envia = document.getElementById('c-btn');
+    var live  = document.getElementById('c-live');
+    var out   = document.getElementById('c-out');
+    if (!form || !campo || !envia || !live || !out) return;
+
+    var enviado = false;   // 1 mensagem por pedido concluído
+    var enviando = false;  // trava de duplo clique
+
+    function resultado(kind, titulo, texto) {
+      out.innerHTML = '<div class="msg ' + kind + '"><h3></h3><p></p></div>';
+      out.querySelector('h3').textContent = titulo;
+      out.querySelector('p').textContent = texto;
+    }
+
+    /* lista limpa: só CNPJ que passa no dígito verificador, sem repetido.
+       Nada de texto livre sai daqui — é a garantia escrita na página. */
+    function limpos() {
+      return parseLista(campo.value).validos.slice(0, 600);
+    }
+
+    function atualizaLive() {
+      var p = parseLista(campo.value);
+      var n = p.validos.length;
+      if (!n && !p.invalidos.length) { live.hidden = true; live.textContent = ''; live.className = 'live'; return; }
+      live.hidden = false;
+      var txt = n + (n === 1 ? ' CNPJ válido detectado' : ' CNPJs válidos detectados');
+      if (n < MIN_GATE) {
+        live.className = 'live';
+        txt += ' — faltam ' + (MIN_GATE - n) + ' para o mínimo de ' + MIN_GATE;
+      } else {
+        live.className = 'live enough';
+        txt += ' — dá para gerar o relatório';
+      }
+      if (p.invalidos.length) {
+        txt += ' · ' + p.invalidos.length + ' item(ns) ignorado(s) por não serem CNPJ válido';
+      }
+      live.textContent = txt;
+    }
+    campo.addEventListener('input', atualizaLive);
+    atualizaLive();
+
+    function origem() {
+      try {
+        var o = new URLSearchParams(location.search).get('o') || 'direto';
+        return String(o).replace(/[^\w\s.\-]/g, '').trim().slice(0, 60) || 'direto';
+      } catch (e) { return 'direto'; }
+    }
+
+    function emailValido(s) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
+    }
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      if (enviado || enviando) return;
+
+      var cnpjs = limpos();
+      if (cnpjs.length < MIN_GATE) {
+        resultado('err', 'Faltam CNPJs',
+          cnpjs.length === 0
+            ? 'Cole no campo acima pelo menos ' + MIN_GATE + ' CNPJs de clientes seus. Um CNPJ tem 14 dígitos e precisa passar no dígito verificador — por enquanto não reconheci nenhum.'
+            : 'Reconheci ' + cnpjs.length + ' CNPJ(s) válido(s). O primeiro relatório precisa de pelo menos ' + MIN_GATE + ' para ter serventia — com menos que isso você não consegue julgar o serviço, e nós não queremos que você julgue mal por amostra pequena.');
+        return;
+      }
+
+      var email = (mail && mail.value ? mail.value : '').trim().slice(0, 120);
+      if (email && !emailValido(email)) {
+        resultado('err', 'Esse e-mail não parece completo',
+          'Confira o endereço — ou apague o campo: ele é opcional e o pedido é registrado sem ele.');
+        return;
+      }
+
+      var payload = {
+        cnpjs: cnpjs,
+        n_cnpjs: cnpjs.length,
+        email: email,            /* vazio quando o contador prefere ficar anônimo */
+        quer_relatorio: true,
+        origem: origem(),
+        ts: new Date().toISOString()
+      };
+
+      enviando = true;
+      envia.disabled = true;
+      var rotulo = envia.textContent;
+      envia.textContent = 'Enviando…';
+
+      fetch(NTFY, { method: 'POST', body: JSON.stringify(payload) })
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          enviado = true;
+          envia.textContent = 'Pedido enviado';
+          resultado('ok', 'Recebido — ' + cnpjs.length + ' CNPJs entraram na fila do primeiro relatório.',
+            email
+              ? 'Vamos montar o retrato cadastral desses CNPJs e mandar para ' + email + '. Nada foi cobrado e não existe cadastro para cancelar. Se preferir que a gente apague a sua lista antes disso, escreva para g001-15@elucidata.vc.'
+              : 'Você optou por não deixar e-mail, então a lista chegou anônima: o pedido está contado, mas não temos como te mandar o relatório de volta. Se mudar de ideia, escreva para g001-15@elucidata.vc citando o horário deste envio.');
+        })
+        .catch(function () {
+          enviando = false;
+          envia.disabled = false;
+          envia.textContent = rotulo;
+          resultado('err', 'Não consegui enviar agora',
+            'A mensagem não saiu — pode ser a sua rede, um bloqueador ou o serviço fora do ar. Nada foi salvo e nada ficou pela metade; os seus CNPJs continuam no campo acima. Dá para tentar de novo, ou mandar a mesma lista por e-mail para g001-15@elucidata.vc.');
+        });
+    });
+  })();
 })();
 </script>
 </body>
