@@ -320,7 +320,7 @@
       <li><b>Não vendemos, não cedemos e não compartilhamos a sua lista</b><span>e o compromisso mais importante: não usamos a sua carteira para oferecer nada aos seus clientes. Você não está entregando a sua lista para um concorrente prospectar.</span></li>
       <li><b>Você pede a exclusão e ela sai</b><span>um pedido em texto simples basta — sem formulário, sem prazo de carência, sem ligação de retenção. Escreva para <a href="mailto:g001-15@elucidata.vc">g001-15@elucidata.vc</a> e a lista é apagada dos nossos registros.</span></li>
       <li><b>No verificador desta página, a lista nem chega até nós</b><span>a consulta sai do seu navegador direto para a API pública. Se quiser testar sem nos dar nada, é ali em cima.</span></li>
-      <li><b>E somos honestos sobre o canal do pedido</b><span>o formulário lá embaixo envia a sua lista por um canal de mensagens público e simples, montado para uma coisa só: contar quantos escritórios estão pedindo o relatório. Por isso o e-mail é opcional — sem ele, a lista chega sem dono, e ninguém consegue ligar aqueles CNPJs a você. Está tudo escrito ao lado do botão.</span></li>
+      <li><b>E somos honestos sobre o canal do pedido</b><span>o formulário lá embaixo envia a sua lista para um endereço de recebimento nosso, que só o time da Elucidata lê. A lista não é publicada, não aparece em página nenhuma e não vai para serviço de terceiro para ser exibida. O e-mail continua opcional: sem ele, a lista chega sem dono e nem nós conseguimos ligar aqueles CNPJs a você.</span></li>
     </ul>
   </div>
 </section>
@@ -350,13 +350,19 @@
       <p class="hint">Opcional de verdade: sem e-mail o pedido é registrado do mesmo jeito e a lista chega anônima — só não temos como te mandar o relatório de volta.</p>
       <input type="email" id="c-email" inputmode="email" autocomplete="email" placeholder="voce@seuescritorio.com.br">
 
+      <label for="c-escritorio" style="margin-top:18px">Nome do escritório <span class="opt">(opcional)</span></label>
+      <p class="hint">Só para sabermos como te chamar no retorno. Pode deixar em branco.</p>
+      <input type="text" id="c-escritorio" autocomplete="organization" maxlength="120" placeholder="Contabilidade Exemplo">
+
+      <div style="position:absolute;left:-9999px" aria-hidden="true"><input id="c-hp" name="_hp" tabindex="-1" autocomplete="off"></div>
+
       <button type="submit" class="btn block" id="c-btn" style="margin-top:18px">Enviar a lista e pedir o relatório</button>
     </form>
 
     <div class="note" style="margin-top:18px">
-      <p><b>O que sai do seu navegador quando você clica.</b> Só três coisas: a lista de CNPJs válidos, o e-mail <em>se</em> você tiver preenchido, e a origem do link que te trouxe aqui. Nenhum nome, telefone ou texto livre — o campo de cima só deixa passar número de CNPJ.</p>
+      <p><b>O que sai do seu navegador quando você clica.</b> Só isto: a lista de CNPJs válidos, o e-mail e o nome do escritório <em>se</em> você tiver preenchido, e a origem do link que te trouxe aqui. Nenhum telefone, nenhum CPF, nenhum texto livre — o campo dos CNPJs só deixa passar número de CNPJ.</p>
       <p><b>LGPD, sem enrolação.</b> CNPJ é dado público de pessoa jurídica, publicado pela própria Receita Federal: não é dado pessoal e não estamos pedindo dado pessoal de ninguém. Se você preencher o e-mail, esse endereço é dado seu, usado para uma finalidade só — te mandar o relatório — e apagado a pedido, em <a href="mailto:g001-15@elucidata.vc">g001-15@elucidata.vc</a>.</p>
-      <p><b>E a parte que quase ninguém conta.</b> Este envio passa por um canal de mensagens público e simples que usamos para contar quantos escritórios estão pedindo o relatório. É por isso que o e-mail é opcional: sem ele, a lista fica sem dono e ninguém consegue ligar aqueles CNPJs a você ou ao seu escritório.</p>
+      <p><b>Para onde vai o envio.</b> Direto para um endereço de recebimento da Elucidata, lido só pelo nosso time. Não é publicado em página nenhuma, não fica visível para outros visitantes e não é exibido por serviço de terceiro. O e-mail segue opcional: sem ele, a lista fica sem dono e nem nós conseguimos ligar aqueles CNPJs a você ou ao seu escritório.</p>
     </div>
 
     <div id="c-out" role="status" aria-live="polite"></div>
@@ -425,21 +431,23 @@
 
   /* =========================================================================
      CANAL DE CAPTURA DO TRIAL — instrumento da métrica do Gate 1.
-     Substitui o placeholder de formulário que nunca existiu e media zero:
-     a submissão vai para um tópico público do ntfy.sh — custo R$0, sem conta,
-     sem termos a aceitar.
+     A submissão vai para o endpoint privado de captura do fundo (asset A-06).
+     Custo R$0, sem conta e sem termos a aceitar; a lista NÃO é publicada e só
+     o time da Elucidata lê. Substituiu, em 07/08, o tópico público de mensagens
+     usado no primeiro dia: ele era legível por qualquer um e só guardava ~12h.
 
-     Sai do navegador APENAS: a lista de CNPJs válidos, o e-mail SE preenchido
-     (opcional e assim declarado na página) e a origem do link. Não há campo de
-     nome nem de telefone, e a lista é reconstruída só com números que passam no
-     dígito verificador — texto livre não vaza por construção.
+     Sai do navegador APENAS: a lista de CNPJs válidos, o e-mail e o nome do
+     escritório SE preenchidos (ambos opcionais e assim declarados na página) e
+     a origem do link. Nenhum telefone e nenhum texto livre: a lista é
+     reconstruída só com números que passam no dígito verificador.
 
-     ⚠ O ntfy retém mensagem por ~12h. A evidência do gate só sobrevive porque
-     `ops/coletar_intencao.py` colhe o tópico a cada heartbeat e faz append
-     idempotente em `ops/intencoes.jsonl`. Não remova esse hábito.
+     Leitura dos leads no heartbeat: `python3 ops/coletar_intencao.py`, que
+     chama `../../ops/captura.py --novos` e faz append idempotente em
+     `ops/intencoes.jsonl` (registro durável do gate).
      ========================================================================= */
-  var NTFY = 'https://ntfy.sh/elucidata-g001-15-carteira';
-  var MIN_GATE = 10;   // CNPJs necessários para o pedido virar trial de verdade
+  var CAPTURA = 'https://captura.elucidata.vc/v1/g001-15';
+  var MAX_CAMPO = 3900;  // limite de caractere por campo no endpoint (4000)
+  var MIN_GATE = 10;     // CNPJs necessários para o pedido virar trial de verdade
   /* ======================================================================= */
 
   // ---------- CTA: leva ao formulário de pedido, que agora existe ----------
@@ -720,6 +728,8 @@
     var form  = document.getElementById('pedido');
     var campo = document.getElementById('carteira');
     var mail  = document.getElementById('c-email');
+    var esc   = document.getElementById('c-escritorio');
+    var hp    = document.getElementById('c-hp');
     var envia = document.getElementById('c-btn');
     var live  = document.getElementById('c-live');
     var out   = document.getElementById('c-out');
@@ -792,21 +802,37 @@
         return;
       }
 
+      /* O endpoint corta cada campo em 4.000 caracteres: a carteira sai
+         fatiada em `carteira`, `carteira_2`, … para nenhum CNPJ se perder. */
       var payload = {
-        cnpjs: cnpjs,
-        n_cnpjs: cnpjs.length,
+        n_cnpjs: String(cnpjs.length),
         email: email,            /* vazio quando o contador prefere ficar anônimo */
-        quer_relatorio: true,
+        escritorio: (esc && esc.value ? esc.value : '').trim().slice(0, 120),
+        quer_relatorio: 'sim',
         origem: origem(),
-        ts: new Date().toISOString()
+        ts: new Date().toISOString(),
+        _hp: (hp && hp.value ? hp.value : '')
       };
+      var bloco = '', parte = 1;
+      for (var i = 0; i < cnpjs.length; i++) {
+        if (bloco.length + cnpjs[i].length + 1 > MAX_CAMPO) {
+          payload[parte === 1 ? 'carteira' : 'carteira_' + parte] = bloco;
+          parte++; bloco = '';
+        }
+        bloco += (bloco ? '\n' : '') + cnpjs[i];
+      }
+      payload[parte === 1 ? 'carteira' : 'carteira_' + parte] = bloco;
 
       enviando = true;
       envia.disabled = true;
       var rotulo = envia.textContent;
       envia.textContent = 'Enviando…';
 
-      fetch(NTFY, { method: 'POST', body: JSON.stringify(payload) })
+      fetch(CAPTURA, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
         .then(function (r) {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           enviado = true;
